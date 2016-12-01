@@ -1,0 +1,142 @@
+# Alienvault plugin
+# Author: Vladimir Ozura
+# Plugin pf id:1560 version: 0.0.3
+# Last modification: 2015-12-07 12:00
+#
+# Plugin Selection Info:
+# OpenBSD:PF Packet Filter:-
+#
+# END-HEADER
+# Accepted products:
+# openbsd - pf -
+# Description:
+# 
+# 
+#
+#
+
+[DEFAULT]
+plugin_id=1560
+
+[config]
+type=detector
+enable=yes
+
+source=log
+location=/var/log/syslog
+
+create_file=false
+
+process=
+start=no
+stop=no
+startup=
+shutdown=
+
+[translation]
+accept=1
+pass=1
+block=2
+request=3
+reply=4
+unreachport=5
+unreach=6
+timexceed=7
+
+
+[0001 - pfSense-IPv4]
+event_type=event
+precheck=",4,"
+regexp="(?P<hostname>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})[^\>]+\>(?P<date>\w{3}\s+\d{1,2}\s\d\d:\d\d:\d\d)\s+filterlog:\s+(?P<rule_num>[^,]*),(?P<sub_rule_num>[^,]*),(?:[^,]*),(?:[^,]*),(?P<iface>[^,]*),(?P<reason>[^,]*),(?P<action>[^,]*),(?P<direction>[^,]*),(?P<ip_version>[^,]*),(?:[^,]*),(?:[^,]*),(?P<ttl>[^,]*),(?P<id>[^,]*),(?P<offset>[^,]*),(?:[^,]*),(?:[^,]*),(?P<proto>tcp|igmp|udp),(?P<length>[^,]*),(?P<src_ip>[^,]*),(?P<dst_ip>[^,]*),((?P<src_port>\d+),)?((?P<dst_port>\d+),)?"
+date={normalize_date($date)}
+plugin_sid={translate($action)}
+device={resolv($hostname)}
+protocol={$proto}
+src_ip={resolv($src_ip)}
+dst_ip={resolv($dst_ip)}
+src_port={$src_port}
+dst_port={$dst_port}
+userdata1={$iface}
+userdata2={$reason}
+userdata3={$direction}
+userdata4={$rule_num}
+userdata5={$sub_rule_num}
+userdata6={$ip_version}
+userdata7={$ttl}
+userdata8={$offset}
+userdata9={$length}
+
+[0002 - pfSense-IPv4 icmp]
+event_type=event
+precheck="icmp"
+regexp="(?P<hostname>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})[^\>]+\>(?P<date>\w{3}\s+\d{1,2}\s\d\d:\d\d:\d\d)\s+filterlog:\s+(?P<rule_num>[^,]*),(?P<sub_rule_num>[^,]*),(?:[^,]*),(?:[^,]*),(?P<iface>[^,]*),(?P<reason>[^,]*),(?P<action>[^,]*),(?P<direction>[^,]*),(?P<ip_version>[^,]*),(?:[^,]*),(?:[^,]*),(?P<ttl>[^,]*),(?:[^,]*),(?P<offset>[^,]*),(?:[^,]*),(?:[^,]*),(?P<proto>icmp),(?P<length>[^,]*),(?P<src_ip>[^,]*),(?P<dst_ip>[^,]*),(?P<icmp_type>request|reply),(?P<icmp_id>[^,]*),(?P<icmp_seq>[^,]*)"
+date={normalize_date($date)}
+plugin_sid={translate($icmp_type)}
+device={resolv($hostname)}
+protocol={$proto}
+src_ip={resolv($src_ip)}
+dst_ip={resolv($dst_ip)}
+userdata1={$iface}
+userdata2={$reason}
+userdata3={$action}
+userdata4={$direction}
+userdata5={$rule_num}
+userdata6={$sub_rule_num}
+userdata7={$icmp_id}
+userdata8={$ttl}
+userdata9={$icmp_seq}
+
+[0003 - pfSense-IPv4 icmp]
+event_type=event
+precheck="icmp"
+regexp="(?P<hostname>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})[^\>]+\>(?P<date>\w{3}\s+\d{1,2}\s\d\d:\d\d:\d\d)\s+filterlog:\s+(?P<rule_num>[^,]*),(?P<sub_rule_num>[^,]*),(?P<anchor>[^,]*),(?P<tracket>[^,]*),(?P<iface>[^,]*),(?P<reason>[^,]*),(?P<action>[^,]*),(?P<direction>[^,]*),(?P<ip_version>[^,]*),(?:[^,]*),(?:[^,]*),(?P<ttl>[^,]*),(?:[^,]*),(?P<offset>[^,]*),(?:[^,]*),(?P<proto_id>[^,]*),(?P<proto>icmp),(?P<length>[^,]*),(?P<src_ip>[^,]*),(?P<dst_ip>[^,]*),(?P<icmp_type>unreachport|unreach|timexceed)(?P<data>.*)"
+date={normalize_date($date)}
+plugin_sid={translate($icmp_type)}
+device={resolv($hostname)}
+protocol={$proto}
+src_ip={resolv($src_ip)}
+dst_ip={resolv($dst_ip)}
+userdata1={$iface}
+userdata2={$reason}
+userdata3={$action}
+userdata4={$direction}
+userdata5={$rule_num}
+userdata6={$sub_rule_num}
+userdata7={$ip_version}
+userdata8={$offset}
+userdata9={$data}
+
+[0004 - pfSense-IPv6 MLDv2 Reports]
+event_type=event
+precheck=",ff02::16,"
+regexp="(?P<hostname>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})[^\>]+\>(?P<date>\w{3}\s+\d{1,2}\s\d\d:\d\d:\d\d)\s+filterlog:\s+(?P<rule_num>[^,]*),(?P<sub_rule_num>[^,]*),(?P<anchor>[^,]*),(?P<tracket>[^,]*),(?P<iface>[^,]*),(?P<reason>[^,]*),(?P<action>[^,]*),(?P<direction>[^,]*),(?P<ip_version>[^,]*),(?P<class>[^,]*),(?P<flow_label>[^,]*),(?P<hop_limit>[^,]*),Options,(?:[^,]*,){2}(?P<ipv6_local_addr>[^,]*),(?P<ipv6_mldv2_addr>[^,]*)"
+date={normalize_date($date)}
+plugin_sid={translate($action)}
+device={resolv($hostname)}
+userdata1={$iface}
+userdata2={$reason}
+userdata3={$ip_version}
+userdata4={$direction}
+userdata5={$rule_num}
+userdata6={$sub_rule_num}
+userdata7={$class}
+userdata8={$hop_limit}
+userdata9={$ipv6_local_addr}
+
+[0005 - pfSense-IPv6]
+event_type=event
+precheck=",6,"
+regexp="(?P<hostname>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})[^\>]+\>(?P<date>\w{3}\s+\d{1,2}\s\d\d:\d\d:\d\d)\s+filterlog:\s+(?P<rule_num>[^,]*),(?P<sub_rule_num>[^,]*),(?P<anchor>[^,]*),(?P<tracket>[^,]*),(?P<iface>[^,]*),(?P<reason>[^,]*),(?P<action>[^,]*),(?P<direction>[^,]*),(?P<ip_version>[^,]*),(?P<class>[^,]*),(?P<flow_label>[^,]*),(?P<hop_limit>[^,]*),(?P<proto>[^,]*),(?P<proto_id>[^,]*)"
+date={normalize_date($date)}
+plugin_sid={translate($action)}
+device={resolv($hostname)}
+protocol={$proto}
+userdata1={$iface}
+userdata2={$reason}
+userdata3={$ip_version}
+userdata4={$direction}
+userdata5={$rule_num}
+userdata6={$sub_rule_num}
+userdata7={$class}
+userdata8={$hop_limit}
+userdata9={$flow_label}
